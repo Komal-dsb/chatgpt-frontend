@@ -1,55 +1,54 @@
-'use client'
-import { Button } from "@/components/ui/button"
+"use client";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
-  
   const router = useRouter();
-    const handleSignup = async (e: React.FormEvent) => { 
 
+ const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-        
-      
-        e.preventDefault();
-        const formData = new FormData(e.target as HTMLFormElement);
-        const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
-        const name = formData.get("name") as string;
-      
+  const formData = new FormData(e.target as HTMLFormElement);
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirm-password") as string;
 
-const { data, error } = await authClient.signUp.email({
-        email, 
-        password, 
-        name, 
-       callbackURL: "/" 
-    }, {
-        onRequest: () => {
-            //show loading
-        },
-        onSuccess: () => {
-            router.push("/");
-        },
-        onError: (ctx) => {
-            // display the error message
-           console.log(error)
-        },
-});
-    }
+  if (password !== confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
+
+  const { data, error } = await authClient.signUp.email({
+    name,
+    email,
+    password,
+    
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  router.push("/");
+};
+
 
   return (
     <Card {...props}>
@@ -64,7 +63,13 @@ const { data, error } = await authClient.signUp.email({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" name="name" placeholder="John Doe" required />
+              <Input
+                id="name"
+                type="text"
+                name="name"
+                placeholder="John Doe"
+                required
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -91,7 +96,12 @@ const { data, error } = await authClient.signUp.email({
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" name="confirm-password" type="password" required />
+              <Input
+                id="confirm-password"
+                name="confirm-password"
+                type="password"
+                required
+              />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>
@@ -109,5 +119,5 @@ const { data, error } = await authClient.signUp.email({
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/sidebar"
 
 export function NavMain({
-  items,
+  items
 }: {
   items: {
     title: string
@@ -30,7 +30,7 @@ export function NavMain({
       title: string
       url: string
     }[]
-  }[]
+  }[],
 }) {
   return (
     <SidebarGroup>
