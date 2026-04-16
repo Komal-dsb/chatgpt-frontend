@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 
 export function LoginForm({
@@ -25,25 +26,42 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
 
   const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
 
-  const handleSignIn = async (e:React.FormEvent) =>{
+  useEffect(() => {
+    if (!isPending && session) {
+      router.push("/");
+    }
+  }, [session, isPending, router]);
 
-      e.preventDefault();
-      const formData = new FormData(e.target as HTMLFormElement)
-      const email = formData.get("email") as string 
-      const password = formData.get("password") as string
+  const handleSignIn = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const { data, error } = await authClient.signIn.email({
-      email,
-      password,
-      
-    },)
+  const formData = new FormData(e.target as HTMLFormElement);
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  
+
+  const { data, error } = await authClient.signIn.email({
+    email,
+    password,
+  });
+
   if (error) {
     alert(error.message);
     return;
   }
 
-  router.push("/");
+ 
+};
+  
+  if (isPending) {
+    return <div className="flex min-h-svh w-full items-center justify-center">Loading...</div>;
+  }
+
+  if (session) {
+    return null; // Will redirect via useEffect
   }
 
   return (

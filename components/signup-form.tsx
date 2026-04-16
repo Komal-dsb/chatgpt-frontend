@@ -16,9 +16,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (!isPending && session) {
+      router.push("/");
+    }
+  }, [session, isPending, router]);
+  
 
  const handleSignup = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -33,7 +42,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     alert("Passwords do not match");
     return;
   }
-
+    
   const { data, error } = await authClient.signUp.email({
     name,
     email,
@@ -49,6 +58,13 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   router.push("/");
 };
 
+  if (isPending) {
+    return <div className="flex min-h-svh w-full items-center justify-center">Loading...</div>;
+  }
+
+  if (session) {
+    return null; // Will redirect via useEffect
+  }
 
   return (
     <Card {...props}>

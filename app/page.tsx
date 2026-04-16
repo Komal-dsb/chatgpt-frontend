@@ -14,8 +14,10 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { chatItem } from "@/types/common";
+import { ProtectedRoute } from "@/components/protected-route";
 
 export default function Page() {
+  const { isPending } = authClient.useSession();
   const [message, setMessage] = useState("");
   const [answer, setAnswer] = useState();
   const [loading, setLoading] = useState(false);
@@ -75,8 +77,13 @@ export default function Page() {
     });
   };
 
+  if (isPending) {
+    return <p className="min-h-screen flex justify-center items-center">Loading...</p>;
+  }
+
   return (
-    <SidebarProvider>
+    <ProtectedRoute>
+      <SidebarProvider>
       <AppSidebar chatList={chatList} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -126,17 +133,19 @@ export default function Page() {
               </Button>
             </div>
 
-            <div className="mt-10 px-6">
+            <div className="mt-10 px-6 mb-4">
               <h1>Your Answer</h1>
               {loading ? (
                 <p>Loading......</p>
               ) : (
-                <p className="text-xl italic">{answer}</p>
+                <p className="overflow-x-auto whitespace-pre-wrap">{answer}</p>
+                
               )}
             </div>
           </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </ProtectedRoute>
   );
 }
